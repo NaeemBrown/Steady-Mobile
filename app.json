@@ -1,0 +1,25 @@
+{
+  "expo": {
+    "name": "Steady",
+    "slug": "steady-mobile",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "scheme": "steady",
+    "userInterfaceStyle": "automatic",
+    "android": {
+      "package": "com.steady.mobile",
+      "permissions": [
+        "ACTIVITY_RECOGNITION",
+        "RECEIVE_BOOT_COMPLETED",
+        "VIBRATE"
+      ]
+    },
+    "plugins": [
+      "expo-router",
+      "expo-sensors"
+    ],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}
