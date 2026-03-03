@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "933414381924",
+    "project_id": "synccalaccounts",
+    "storage_bucket": "synccalaccounts.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:933414381924:android:bc1905ac119188518ef271",
+        "android_client_info": {
+          "package_name": "com.steady.mobile"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "933414381924-f73n54tbnnm002pn7p3rfcjp3pfial91.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.steady.mobile",
+            "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
+          }
+        },
+        {
+          "client_id": "933414381924-snp1087r7n9o498jd2va5sgttfltcl9k.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.steady.mobile",
+            "certificate_hash": "a1dc45e4443b58f832b9ff0c9db2f2489cdfcf47"
+          }
+        },
+        {
+          "client_id": "933414381924-re3vqqp0g7kilhq72kemv6npirs0c9m7.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDjMc1PmODnmiwPDRrOU8LDpqqlhn2iHEY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "933414381924-re3vqqp0g7kilhq72kemv6npirs0c9m7.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

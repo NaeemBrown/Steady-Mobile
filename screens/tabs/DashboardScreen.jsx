@@ -68,7 +68,7 @@ export default function DashboardScreen() {
   const onRefresh = async () => { setRefreshing(true); await loadData(); setRefreshing(false); };
 
   const now = new Date();
-  const todayEvents = events.filter(e => e.day === now.getDate()).sort((a, b) => (a.time || "").localeCompare(b.time || ""));
+  const todayEvents = events.filter(e => e.day === now.getDate());
   const meetingCount = events.filter(e => e.type === "meeting").length;
   const totalHours = events.reduce((sum, e) => {
     const m = e.duration?.match(/([\d.]+)h|(\d+)m/);
