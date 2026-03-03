@@ -4,9 +4,7 @@ import {
   sendPasswordResetEmail, signOut, updateProfile,
   GoogleAuthProvider, signInWithCredential,
 } from "firebase/auth";
-import * as Google from "expo-auth-session/providers/google";
-import * as WebBrowser from "expo-web-browser";
-import * as AuthSession from "expo-auth-session";
+import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import { getFirebaseAuth } from "../lib/firebase.js";
 import {
   createUserProfile, getUserProfile, updateUserProfile,
@@ -15,7 +13,10 @@ import {
   loadCalendarSources, seedCalendarSources, recomputeAndSaveAnalytics,
 } from "../services/firestoreService.js";
 
-WebBrowser.maybeCompleteAuthSession();
+// Configure Google Sign-in outside the component
+GoogleSignin.configure({
+  webClientId: "1055600309782-ucqbcrl2oam1pdco9tnvb87emm82n27t.apps.googleusercontent.com",
+});
 
 const AuthContext = createContext(null);
 export function useAuth() {
@@ -36,45 +37,29 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  /* ── Google OAuth ─────────────────────────────────────────────── */
-  const [_req, response, promptAsync] = Google.useAuthRequest({
-    androidClientId: "1055600309782-k0cb31lislmcphci9498h9vavhvqeck0.apps.googleusercontent.com",
-    webClientId:     "1055600309782-ucqbcrl2oam1pdco9tnvb87emm82n27t.apps.googleusercontent.com",
-    expoClientId:    "1055600309782-ucqbcrl2oam1pdco9tnvb87emm82n27t.apps.googleusercontent.com",
-    redirectUri: AuthSession.makeRedirectUri({ useProxy: true }),
-  });
-
-  useEffect(() => {
-    if (response?.type === "success") {
-      const { id_token } = response.params;
-      const cred = GoogleAuthProvider.credential(id_token);
-      signInWithCredential(getFirebaseAuth(), cred).then(async (result) => {
-        const u = result.user;
-        let profile = null;
-        try { profile = await getUserProfile(u.uid); } catch {}
-        if (!profile) {
-          await createUserProfile(u.uid, { displayName: u.displayName, email: u.email });
-          await seedCalendarSources(u.uid, DEFAULT_SOURCES);
-        }
-      }).catch(err => setError(friendlyError(err.code)));
-    }
-  }, [response]);
-
   /* ── Auth listener ────────────────────────────────────────────── */
   useEffect(() => {
     const unsub = onAuthStateChanged(getFirebaseAuth(), async (fbUser) => {
-      if (fbUser) {
-        let profile = null;
-        try { profile = await getUserProfile(fbUser.uid); } catch {}
-        setUser({
-          uid: fbUser.uid, email: fbUser.email,
-          displayName: fbUser.displayName || profile?.displayName || "",
-          photoURL: fbUser.photoURL || null,
-          theme: profile?.theme || "midnight",
-          ...(profile || {}),
-        });
-      } else { setUser(null); }
-      setLoading(false);
+      try {
+        if (fbUser) {
+          let profile = null;
+          try { profile = await getUserProfile(fbUser.uid); } catch {}
+          setUser({
+            uid: fbUser.uid, email: fbUser.email,
+            displayName: fbUser.displayName || profile?.displayName || "",
+            photoURL: fbUser.photoURL || null,
+            theme: profile?.theme || "midnight",
+            ...(profile || {}),
+          });
+        } else {
+          setUser(null);
+        }
+      } catch (e) {
+        console.error("Auth state error:", e);
+        setUser(null);
+      } finally {
+        setLoading(false);
+      }
     });
     return unsub;
   }, []);
@@ -102,13 +87,32 @@ export function AuthProvider({ children }) {
     catch (e) { setError(friendlyError(e.code)); throw e; }
   }, []);
 
-  const googleSignIn = useCallback(() => {
+  /* ── Native Google OAuth ──────────────────────────────────────── */
+  const googleSignIn = useCallback(async () => {
     setError("");
-    promptAsync({ useProxy: true });
-  }, [promptAsync]);
+    try {
+      await GoogleSignin.hasPlayServices();
+      const userInfo = await GoogleSignin.signIn();
+      const cred = GoogleAuthProvider.credential(userInfo.idToken);
+      
+      const result = await signInWithCredential(getFirebaseAuth(), cred);
+      const u = result.user;
+      
+      let profile = null;
+      try { profile = await getUserProfile(u.uid); } catch {}
+      if (!profile) {
+        await createUserProfile(u.uid, { displayName: u.displayName, email: u.email });
+        await seedCalendarSources(u.uid, DEFAULT_SOURCES);
+      }
+    } catch (error) {
+      setError("Google Sign-in failed or was cancelled.");
+      console.error(error);
+    }
+  }, []);
 
   const logout = useCallback(async () => {
-    await signOut(getFirebaseAuth()); setUser(null);
+    await signOut(getFirebaseAuth()); 
+    setUser(null);
   }, []);
 
   /* ── Firestore CRUD ───────────────────────────────────────────── */

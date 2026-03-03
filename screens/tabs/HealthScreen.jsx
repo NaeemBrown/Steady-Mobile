@@ -3,9 +3,9 @@ import { View, Text, ScrollView, TouchableOpacity, Platform } from "react-native
 import { useAuth } from "../../context/AuthProvider.jsx";
 import { useTheme } from "../../lib/theme.js";
 
-// Pedometer import — will gracefully fail on unsupported devices
+// Pedometer: expo-sensors removed. Add a native pedometer library if needed.
+// e.g. react-native-pedometer or @react-native-community/pedometer
 let Pedometer = null;
-try { Pedometer = require("expo-sensors").Pedometer; } catch {}
 
 export default function HealthScreen() {
   const { getUserEvents } = useAuth();

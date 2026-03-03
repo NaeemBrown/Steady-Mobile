@@ -1,5 +1,4 @@
 node_modules/
-.expo/
 dist/
 *.jks
 *.p8
@@ -7,6 +6,19 @@ dist/
 *.key
 *.mobileprovision
 *.orig.*
-web-build/
 .env
 .env.local
+
+# Android
+android/app/build/
+android/build/
+android/.gradle/
+local.properties
+
+# Metro
+.metro-health-check*
+
+# IDE
+.idea/
+.vscode/
+*.iml
