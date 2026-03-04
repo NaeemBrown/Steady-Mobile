@@ -88,25 +88,40 @@ export function AuthProvider({ children }) {
   }, []);
 
   /* ── Native Google OAuth ──────────────────────────────────────── */
-  const googleSignIn = useCallback(async () => {
+const googleSignIn = useCallback(async () => {
     setError("");
     try {
       await GoogleSignin.hasPlayServices();
-      const userInfo = await GoogleSignin.signIn();
-      const cred = GoogleAuthProvider.credential(userInfo.idToken);
-      
-      const result = await signInWithCredential(getFirebaseAuth(), cred);
-      const u = result.user;
-      
-      let profile = null;
-      try { profile = await getUserProfile(u.uid); } catch {}
-      if (!profile) {
-        await createUserProfile(u.uid, { displayName: u.displayName, email: u.email });
-        await seedCalendarSources(u.uid, DEFAULT_SOURCES);
+      const response = await GoogleSignin.signIn();
+
+      // v16 Gamechanger: Check the label on the briefcase first
+      if (response.type === 'success') {
+        const idToken = response.data?.idToken;
+
+        // If the token is missing, we trap it here instead of crashing Firebase
+        if (!idToken) {
+          setError("Google didn't return an ID token. Check your Web Client ID.");
+          return;
+        }
+
+        // Hand the safe token to Firebase
+        const cred = GoogleAuthProvider.credential(idToken);
+        const result = await signInWithCredential(getFirebaseAuth(), cred);
+        const u = result.user;
+
+        let profile = null;
+        try { profile = await getUserProfile(u.uid); } catch {}
+        if (!profile) {
+          await createUserProfile(u.uid, { displayName: u.displayName, email: u.email });
+          await seedCalendarSources(u.uid, DEFAULT_SOURCES);
+        }
+      } else {
+        // The user backed out or cancelled the popup
+        console.log("Sign-in cancelled or no credentials found.");
       }
     } catch (error) {
-      setError("Google Sign-in failed or was cancelled.");
-      console.error(error);
+      setError("Google Sign-in failed.");
+      console.error("GOOGLE ERROR: ", error);
     }
   }, []);
 
