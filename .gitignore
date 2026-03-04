@@ -22,3 +22,7 @@ local.properties
 .idea/
 .vscode/
 *.iml
+
+#DUMMY SECRETS
+google-services.json
+client_secret_*.json

@@ -15,7 +15,7 @@ import {
 
 // Configure Google Sign-in outside the component
 GoogleSignin.configure({
-  webClientId: "1055600309782-ucqbcrl2oam1pdco9tnvb87emm82n27t.apps.googleusercontent.com",
+  webClientId: "933414381924-re3vqqp0g7kilhq72kemv6npirs0c9m7.apps.googleusercontent.com",
 });
 
 const AuthContext = createContext(null);
